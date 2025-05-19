@@ -1,1 +1,1 @@
-# Hunt-The-Wumpus-Assessment-Task-1
+# Hunt-The-Wumpus-Assessment-Task-2
