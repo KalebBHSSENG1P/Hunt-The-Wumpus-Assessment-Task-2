@@ -3,9 +3,7 @@ import random
 import time
 import sys
 
-#===============================================================================
-#                       Functions Area                                         =
-#===============================================================================
+### DEFINE FUNCTIONS
 def check_neighbor_rooms(pos, item_list):
     """ Checks each orthagonal cell next to pos for the requested item
     returns True as soon as the item is found.
@@ -13,66 +11,74 @@ def check_neighbor_rooms(pos, item_list):
     exits = cave[pos]
     return any(item in cave[pos] for item in item_list)
         
-def draw_room( pos, screen):
+def draw_room(pos, screen):
     """ Draws the room in the back buffer
     """
     x=0
     y=1
     exits = cave[player_pos]
-    screen.fill( (0,0,0) ) #paint the background in black
+    screen.fill( (0,0,0) ) # paint the background in black
 
-    #draw the room circle in brown
-    circle_radius = int ((SCREEN_WIDTH//2)*.75)
+    # draw the room circles in brown
+    circle_radius = int ((SCREEN_WIDTH//3)*.75)
     pygame.draw.circle(screen, BROWN, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2), circle_radius, 0)
 
-    #next draw all exits from the room
+    # next draw all exits from the room
     if exits[LEFT] > 0:
         left = 0
-        top = SCREEN_HEIGHT//2-40
-        pygame.draw.rect(screen, BROWN, ( (left,top), (SCREEN_WIDTH//4,80)), 0)
+        top = SCREEN_HEIGHT//2-100
+        pygame.draw.rect(screen, BROWN, ( (left,top), (SCREEN_WIDTH//3.6,200)), 0)
+
     if exits[RIGHT] > 0:
-        #draw right exit
-        left = SCREEN_WIDTH-(SCREEN_WIDTH//4)
-        top = SCREEN_HEIGHT//2-40
-        pygame.draw.rect(screen, BROWN, ((left,top), (SCREEN_WIDTH//4,80)), 0)
+        # draw right exit
+        left = SCREEN_WIDTH-(SCREEN_WIDTH//3.6)
+        top = SCREEN_HEIGHT//2-100
+        pygame.draw.rect(screen, BROWN, ((left,top), (SCREEN_WIDTH//3.6,200)), 0)
+
     if exits[UP] > 0:
-        #draw top exit
-        left = SCREEN_WIDTH//2-40
+        # draw top exit
+        left = SCREEN_WIDTH//2-100
         top = 0
-        pygame.draw.rect(screen, BROWN, ((left,top), (80,SCREEN_HEIGHT//4)), 0)
+        pygame.draw.rect(screen, BROWN, ((left,top), (200,SCREEN_HEIGHT//3.6)), 0)
+
     if exits[DOWN] > 0 :
-        #draw bottom exit
-        left = SCREEN_WIDTH//2-40
-        top = SCREEN_HEIGHT-(SCREEN_WIDTH//4)
-        pygame.draw.rect(screen, BROWN, ((left,top), (80,SCREEN_HEIGHT//4)), 0)
+        # draw bottom exit
+        left = SCREEN_WIDTH//2-100
+        top = SCREEN_HEIGHT-(SCREEN_WIDTH//10)
+        pygame.draw.rect(screen, BROWN, ((left,top), (200,SCREEN_HEIGHT//3.6)), 0)
         
-    #find out if bats, pits or a wumpus is near
+    # check if hazards are nearby
     bats_near = check_neighbor_rooms(player_pos, bats_list)
     pit_near = check_neighbor_rooms(player_pos, pits_list)
     wumpus_near = check_neighbor_rooms(player_pos, [wumpus_pos, [-1,-1]])
     
-    #draw a blood circle if the Wumpus is nearby
+    # draw blood circle if the Wumpus is nearby
     if wumpus_near == True:
-        circle_radius = int ((SCREEN_WIDTH//2)*.5)
+        circle_radius = int ((SCREEN_WIDTH//2)*.4)
         pygame.draw.circle(screen, RED, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2), circle_radius, 0)
 
-    #draw the pit in black if it is present
+    # draw pit in black if it is present
     if player_pos in pits_list:
-        circle_radius = int ((SCREEN_WIDTH//2)*.5)
+        circle_radius = int ((SCREEN_WIDTH//2)*.4)
         pygame.draw.circle(screen, BLACK, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2), circle_radius, 0)
-     
-    #draw the player
-    screen.blit(player_img,(SCREEN_WIDTH//2-player_img.get_width()//2,SCREEN_HEIGHT//2-player_img.get_height()//2))
 
-    #draw the bat imag
+    # load player images
+    screen.blit(
+        player_img,
+        (SCREEN_WIDTH//2 - player_img.get_width()//2,
+        SCREEN_HEIGHT//2 - player_img.get_height()//2)
+    )
+
+    # load bat image
     if player_pos in bats_list:
         screen.blit(bat_img,(SCREEN_WIDTH//2-bat_img.get_width()//2,SCREEN_HEIGHT//2-bat_img.get_height()//2))
 
-    #draw the wumpus
+    # load wumpus image
     if player_pos == wumpus_pos:
+
         screen.blit(wumpus_img,(SCREEN_WIDTH//2-wumpus_img.get_width()//2,SCREEN_HEIGHT//2-wumpus_img.get_height()//2))
 
-    #draw text
+    # draw text
     y_text_pos = 0 #keeps track of the next y positiojn on screen to draw text
     pos_text = font.render("POS:"+str(player_pos), 1, (0, 255, 64))
     screen.blit(pos_text,(0, 0))
@@ -95,21 +101,21 @@ def draw_room( pos, screen):
 def populate_cave():
     global player_pos, wumpus_pos
 
-    #place the player
+    # place the player
     player_pos = random.randint(1, 20)
 
     # place the wumpus
     place_wumpus()
     
-    #place the bats
+    # place the bats
     for bat in range(0,NUM_BATS):
         place_bat()
 
-    #place the pits
+    # place the pits
     for pit in range (0,NUM_PITS):
         place_pit()
 
-    #place the arrows
+    # place the arrows
     for arrow in range (0,NUM_ARROWS):
         place_arrow()
 
@@ -148,15 +154,15 @@ def place_arrow():
 def check_room(pos):
     global player_pos, screen, num_arrows
     
-    #is there a Wumpus in the room?
+    # is there a Wumpus in the room?
     if player_pos == wumpus_pos:
         game_over("You were eaten by a WUMPUS!!!")
 
-    #is there a pit?
+    # is there a pit?
     if player_pos in pits_list:
         game_over("You fell into a bottomless pit!!")
 
-    #is there bats in the room?  If so move the player and the bats
+    # is there bats in the room?  If so move the player and the bats
     if player_pos in bats_list:
         print("Bats pick you up and place you elsewhere in the cave!")
         screen.fill(BLACK)
@@ -168,7 +174,7 @@ def check_room(pos):
         pygame.display.flip()
         time.sleep(2.5)
         
-        #move the bats
+        # move the bats
         new_pos = player_pos
         
         while (new_pos == player_pos) or (new_pos in bats_list) or (new_pos == wumpus_pos) or (new_pos in pits_list):
@@ -177,7 +183,7 @@ def check_room(pos):
         bats_list.append(new_pos)
         print ("bat at: "+str(new_pos))
                 
-        #now move the player
+        # now move the player
         new_pos = player_pos # set new_pos equal to the old os so the first test fails
         # Now place the player in a random location
         while (new_pos == player_pos) or (new_pos in bats_list) or (new_pos == wumpus_pos) or (new_pos in pits_list):
@@ -185,8 +191,9 @@ def check_room(pos):
         player_pos = new_pos
         print ("player at:"+str(player_pos))
 
-    #is there an arrow in the room?
+    # is there an arrow in the room?
     if player_pos in arrows_list:
+        time.sleep(1.0)
         screen.fill(BLACK)
         text = font.render("You have found an arrow!", 1, (0, 255, 64))
         textrect = text.get_rect()
@@ -266,7 +273,7 @@ def shoot_arrow(direction):
         sys.exit()
 
 def check_pygame_events():
-    global player_pos
+    global player_pos, player_img
     event = pygame.event.poll()
     if event.type == pygame.QUIT:
         pygame.quit()
@@ -275,32 +282,36 @@ def check_pygame_events():
         if event.key == pygame.K_ESCAPE:
             pygame.quit()
             sys.exit()
-        elif event.key ==pygame.K_LEFT:
+        elif event.key == pygame.K_LEFT:
              if pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 shoot_arrow(LEFT)
              elif cave[player_pos][LEFT] > 0: 
                 player_pos=cave[player_pos][LEFT]
+                player_img = player_left_img
                 move_wumpus()
         elif event.key == pygame.K_RIGHT:
             if pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 shoot_arrow(RIGHT)
             elif cave[player_pos][RIGHT] >0:
                 player_pos = cave[player_pos][RIGHT]
+                player_img = player_right_img
                 move_wumpus()
         elif event.key == pygame.K_UP:
             if pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 shoot_arrow(UP)
             elif cave[player_pos][UP] > 0:
                 player_pos = cave[player_pos][UP]
+                player_img = player_up_img
                 move_wumpus()
-        elif event.key ==pygame.K_DOWN:
+        elif event.key == pygame.K_DOWN:
             if pygame.key.get_mods() & pygame.KMOD_SHIFT:
                 shoot_arrow(DOWN)
             elif cave[player_pos][DOWN] > 0:
                 player_pos = cave[player_pos][DOWN]
+                player_img = player_down_img
                 move_wumpus()
 
-def print_instructoions():
+def print_instructions():
     print(
     '''
                              Hunt The Wumpus!
@@ -326,36 +337,37 @@ fire your arrow.
     '''
     )
     
-#===============================================================================
-#                       Gloabls and Constants area                             =
-#===============================================================================
-#Our screen width and height
-SCREEN_WIDTH = SCREEN_HEIGHT= 1000
+### DEFINE GLOBALS AND CONSTANTS
 
-#number of bats, pits and arrows in the cave#load our three images
+#load our three images
 bat_img = pygame.image.load('images/bat.png')
-player_img = pygame.image.load('images/player.png')
 wumpus_img = pygame.image.load('images/wumpus.png')
 arrow_img = pygame.image.load('images/arrow.png')
-#increase the number of bats and pits to make it harder
-#increase the number of arrows to make it easier
+
+player_img = pygame.image.load('images/player.png')
+player_left_img = pygame.image.load('images/player_left.png')
+player_up_img = pygame.image.load('images/player_up.png')
+player_down_img = pygame.image.load('images/player_down.png')
+
+# increase the number of bats and pits to make it harder
+# increase the number of arrows to make it easier
 NUM_BATS = 3
 NUM_PITS = 3
-NUM_ARROWS = 0
+NUM_ARROWS = 1
 
-player_pos = 0 #tracks where we are in the cave
-wumpus_pos = 0 #tracks where the Wumpus is
+player_pos = 0 # tracks where we are in the cave
+wumpus_pos = 0 # tracks where the Wumpus is
 num_arrows = 1 # Starting arrows
-mobile_wumpus = False #Set this to true to allow the wumpus to move
+mobile_wumpus = False # Set this to true to allow the wumpus to move
 wumpus_move_chance = 50
 
-#constants for directions
+# constants for directions
 UP = 0
 DOWN = 1
 LEFT = 2
 RIGHT = 3
 
-#color defintions
+# colour defintions
 BROWN = 193,154,107
 BLACK = 0,0,0
 RED = 138,7,7
@@ -370,31 +382,42 @@ bats_list = []
 pits_list = []
 arrows_list = []
 
-#===============================================================================
-#                       Initilizations area                                   =
-#===============================================================================
+### INITIALISE GAME
 
-print_instructoions()
+print_instructions()
 input("Press <ENTER> to begin.")
 pygame.init()
-screen = pygame.display.set_mode( (SCREEN_WIDTH, SCREEN_HEIGHT), pygame.DOUBLEBUF | pygame.HWSURFACE )
+
+# Our screen width and height
+display_info = pygame.display.Info()
+SCREEN_WIDTH = display_info.current_w
+SCREEN_HEIGHT = display_info.current_h
+
+screen = pygame.display.set_mode( (SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN | pygame.DOUBLEBUF | pygame.HWSURFACE )
 pygame.display.set_caption("Hunt the Wumpus")
 
-#load our three images
+# load our images
 bat_img = pygame.image.load('images/bat.png')
-player_img = pygame.image.load('images/player.png')
 wumpus_img = pygame.image.load('images/wumpus.png')
 arrow_img = pygame.image.load('images/arrow.png')
 
-#setup our font
+# load all player images
+player_right_img = pygame.image.load('images/player.png')
+player_left_img = pygame.image.load('images/player_left.png')
+player_up_img = pygame.image.load('images/player_up.png')
+player_down_img = pygame.image.load('images/player_down.png')
+
+# load default player image
+player_img = pygame.image.load('images/player_down.png')
+
+# load font
 font = pygame.font.Font(None, 36)
 
-#Get iniital game settings
+# Get iniital game settings
 reset_game()
 
-#===============================================================================
-#                       Main Game Loop                                         =
-#===============================================================================
+### MAIN GAME LOOP
+
 while True:
     check_pygame_events()     
     draw_room(player_pos, screen)
